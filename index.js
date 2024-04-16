@@ -12,7 +12,17 @@ app.listen(port, () => {
    console.log(`Example app listening on port ${port}`)
 })
 
-
+app.post('/register',async(req,res) => {
+  //console.log(req.body.username);
+  //insertOne the registration data to mongo
+  let result = await client.db("benr24231").collection("datacollection").insertOne({
+    username: req.body.username,
+    password: req.body.password,
+    name: req.body.name,
+    email: req.body.email
+  })
+  res.send(result)
+})
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://b022210136:bilibili@cluster0.wfnyzi5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -65,7 +75,7 @@ async function run() {
 
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    //await client.close();
   }
 }
 run().catch(console.dir);
