@@ -1,6 +1,7 @@
+const bcrypt = require('bcrypt')
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000
 
 app.use(express.json())
 
@@ -15,14 +16,53 @@ app.listen(port, () => {
 app.post('/register',async(req,res) => {
   //console.log(req.body.username);
   //insertOne the registration data to mongo
+  const hash = bcrypt.hashSync(req.body.password, 10);
+
   let result = await client.db("benr24231").collection("datacollection").insertOne({
     username: req.body.username,
-    password: req.body.password,
+    password: hash,
     name: req.body.name,
     email: req.body.email
   })
   res.send(result)
 })
+
+app.post('/login',async(req,res) => { 
+// step #1:req.body.username
+  let result = await client.db("benr24231").collection("datacollection").findOne({
+    username: req.body.username
+})
+console.log(result);
+console.log(req.body);
+
+if(req.body.username != null && req.body.password != null){
+
+  if(result){
+    //step2:if user exists, check if password is correct
+    if(bcrypt.compareSync(req.body.password,result.password)==true){
+      //paaword is correct
+      res.send('Login successful');
+    } else{
+      //password is incorrect
+      res.status(404).send('Wrong Password');
+    
+    }
+  }else{
+    //step3:if user not found
+    res.send('User not found');
+  
+  }
+}
+else{
+     res.status(404).send('Please enter username and password');
+
+}
+});
+
+
+
+
+
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://b022210136:bilibili@cluster0.wfnyzi5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
